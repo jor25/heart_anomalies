@@ -60,11 +60,55 @@ def class_prob(labels):
     prob_normal = normal_hearts / float(total_hearts)      # Probability of normal hearts
     prob_abnormal = abnormal_hearts / float(total_hearts)  # Probability of abnormal hearts
 
-    print ("probs normal = {}%\nprobs abnormal = {}%".format(prob_normal, prob_abnormal))
-    pass
+    print ("""
+    total_hearts = {}
+    normal_hearts = {}
+    abnormal_hearts = {}
+    probs normal = {}%
+    probs abnormal = {}%""".format(total_hearts, normal_hearts, abnormal_hearts, prob_normal, prob_abnormal))
+
+    return normal_hearts, abnormal_hearts, prob_normal, prob_abnormal
 
 
-def conditional_prob():
+def conditional_prob(labels, features, total_nrm, total_abn):
+    '''
+        Get the probability of normal or abnormal given a specific feature value.
+        number of abnorm(0) & 0
+        number of abnorm(0) & 1
+        number of norm(1) & 0
+        number of norm(1) & 1
+        Labels compared to features. 
+    '''
+    #print(np.where(labels==1 and features==1))
+    abn_0 = 0
+    abn_1 = 0
+    nrm_0 = 0
+    nrm_1 = 0
+
+    print(features)
+    for i in range(len(labels)):
+        # abnormal and 1
+        if labels[i] == 0 and features[i] == 1:
+            abn_1 += 1
+
+        # normal and 1
+        if labels[i] == 1 and features[i] == 1:
+            nrm_1 += 1
+
+    abn_0 = total_abn - abn_1
+    nrm_0 = total_nrm - nrm_1
+
+    prob_abn_0 = abn_0/float(total_abn) 
+    prob_abn_1 = abn_1/float(total_abn) 
+    prob_nrm_0 = nrm_0/float(total_nrm) 
+    prob_nrm_1 = nrm_1/float(total_nrm) 
+
+    print ("""
+    abn_0 = {}      prob_abn_0 = {}
+    abn_1 = {}      prob_abn_1 = {}
+    nrm_0 = {}      prob_nrm_0 = {}
+    nrm_1 = {}      prob_nrm_1 = {}
+    """.format(abn_0, prob_abn_0, abn_1, prob_abn_1, nrm_0, prob_nrm_0, nrm_1, prob_nrm_1))
     pass
 
 
@@ -74,4 +118,7 @@ def conditional_prob():
 # Call Main
 if __name__== "__main__" :
     data, num_p = read_data()
-    class_prob(data[:,0])
+    
+    normal_hearts, abnormal_hearts, prob_normal, prob_abnormal = class_prob(data[:,0])
+
+    conditional_prob(data[:,0], data[:,1], normal_hearts, abnormal_hearts)
