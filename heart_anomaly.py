@@ -109,16 +109,78 @@ def conditional_prob(labels, features, total_nrm, total_abn):
     nrm_0 = {}      prob_nrm_0 = {}
     nrm_1 = {}      prob_nrm_1 = {}
     """.format(abn_0, prob_abn_0, abn_1, prob_abn_1, nrm_0, prob_nrm_0, nrm_1, prob_nrm_1))
+
+    # Give back two sets of probabilities, the series of normal or abnormal
+    probs_nrms_01 = np.zeros(2)
+    probs_nrms_01[0] = prob_abn_0
+    probs_nrms_01[1] = prob_abn_1
+
+    probs_abrms_01 = np.zeros(2)
+    probs_abrms_01[0] = prob_nrm_0
+    probs_abrms_01[1] = prob_nrm_1
+
+    print(probs_nrms_01, probs_abrms_01)
+    print(np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]])))
+
+    # Add .5 to each element and take the log base 2 of each element then return
+    return np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]]))
+
+
+
+def classifier(test_data, probs_nora_01):
+    '''
+        Given the test data and the probabilities list, determine classification
+        or normal or abnormal heart.
+    '''
+    log_prob_nrm = 0
+    log_prob_abnrm = 0
+    predictions = []
+
+    for i in range(len(test_data)):     # Loop through test data
+        for j in range(1, (len(test_data[0])-1)):   # Loop through feature data
+            print("i = {}\tj = {}\tlen test[0] = {}\ttest[i][j] = {}".format(i, j, len(test_data[0]),test_data[i][j]))
+            log_prob_abnrm += probs_nora_01[j][0][test_data[i][j]]      # Probability of abnormal=0 heart
+            log_prob_nrm += probs_nora_01[j][1][test_data[i][j]]        # Probability of normal=1 heart
+
+        # Check which probability is greater
+        if log_prob_nrm > log_prob_abnrm:
+            predictions.append(1)    # Heart Normal
+        else:
+            predictions.append(0)    # Heart Abnormal
+        
+        # Reset probabilities for each
+        log_prob_nrm = 0
+        log_prob_abnrm = 0
+
+    return predictions
     pass
-
-
-
 
 
 # Call Main
 if __name__== "__main__" :
+    probs_nora_01 = []
+
     data, num_p = read_data()
     
+    # Prework for determining probabilities from training data.
     normal_hearts, abnormal_hearts, prob_normal, prob_abnormal = class_prob(data[:,0])
+    
+    # Loop through all the other features and determine a probability for each
+    for i in range(1, (len(data[0]))):
+        print("{}/{}".format(i, len(data[0])-1 ))   # Show what feature I'm on with this count from 1.
+        probs_nora_01.append( conditional_prob(data[:,0], data[:,i], normal_hearts, abnormal_hearts) )
+    
+    # Verify data for classifier
+    print (probs_nora_01)
+    print (probs_nora_01[21][0][0]) # how to access feature 21, abnormal=0 or normal=1 (do both), if it's 0 or 1 on feature. 
 
-    conditional_prob(data[:,0], data[:,1], normal_hearts, abnormal_hearts)
+    # Now get my test data
+    test_data, num_p2 = read_data("heart-anomaly-hw/spect-resplit.test.csv")
+   
+    # Classify data instances and get prediction
+    predictions = classifier(test_data, probs_nora_01)
+    print(predictions)
+    print(test_data[:,0])
+    verify_list = np.equal(test_data[:,0], predictions)
+    print(verify_list)
+    print("Correct/Total: {}/{}".format(np.sum(verify_list), len(test_data)))
