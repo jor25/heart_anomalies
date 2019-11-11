@@ -36,16 +36,17 @@ def read_data(data_file="heart-anomaly-hw/spect-resplit.train.csv"):
     # Numpy read in my data - separate by comma, all ints.  
     data = np.loadtxt(data_file, delimiter=",", dtype=int)
     num_p = len(data)
-    print(data)
-    print(num_p)
+    #print(data)
+    #print(num_p)
 
     labels = data[:,0]
+    '''
     print(data[:,0])        # Display all the labels
     print(len(data[:,0]))   # Verify same number of samples
 
     print(np.count_nonzero(data[:,0]))  # count the number of 1's
     print("------------------------------------------")
-
+    '''
     return data, num_p
 
 
@@ -177,7 +178,8 @@ def true_pos_neg(predictions, labels, nora):
 if __name__== "__main__" :
     probs_nora_01 = []
 
-    data, num_p = read_data("heart-anomaly-hw/spect-orig.train.csv")
+    #data, num_p = read_data("heart-anomaly-hw/spect-orig.train.csv")
+    data, num_p = read_data("heart-anomaly-hw/SPECT.train")
     
     # Prework for determining probabilities from training data.
     normal_hearts, abnormal_hearts, prob_normal, prob_abnormal = class_prob(data[:,0])
@@ -195,7 +197,8 @@ if __name__== "__main__" :
     # Now get my test data
     # heart-anomaly-hw/spect-orig.test.csv
     #test_data, num_p2 = read_data("heart-anomaly-hw/spect-resplit.test.csv")
-    test_data, num_p2 = read_data("heart-anomaly-hw/spect-orig.test.csv")
+    #test_data, num_p2 = read_data("heart-anomaly-hw/spect-orig.test.csv")
+    test_data, num_p2 = read_data("heart-anomaly-hw/SPECT.test")
    
     # Classify data instances and get prediction
     predictions = classifier(test_data, probs_nora_01)
@@ -208,18 +211,6 @@ if __name__== "__main__" :
     print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
     
     '''
-    # conditions:
-    cond_1 = (np.asarray(predictions) == 1)
-    cond_2 = (test_data[:,0] == 1)
-
-    part_1 = np.where(cond_1 & cond_2)
-    print(part_1)
-    num_norm_test = np.count_nonzero(test_data[:,0])        # Count number of normal hearts in test data
-    print("Normal/Total Normal: {}/{}".format(len(part_1[0]), num_norm_test))
-    '''
-    # Verify
-    print(true_pos_neg(predictions, test_data[:,0], 1))
-    '''
     # conditions round 2:
     cond_3 = (np.asarray(predictions) == 0)
     cond_4 = (test_data[:,0] == 0)
@@ -230,4 +221,17 @@ if __name__== "__main__" :
     print("Abnormal/Total Abnormal: {}/{}".format(len(part_2[0]), num_abnorm_test))
     '''
     # Verify
-    print(true_pos_neg(predictions, test_data[:,0], 0))
+    print("True Negative: ", true_pos_neg(predictions, test_data[:,0], 0))
+
+    '''
+    # conditions:
+    cond_1 = (np.asarray(predictions) == 1)
+    cond_2 = (test_data[:,0] == 1)
+
+    part_1 = np.where(cond_1 & cond_2)
+    print(part_1)
+    num_norm_test = np.count_nonzero(test_data[:,0])        # Count number of normal hearts in test data
+    print("Normal/Total Normal: {}/{}".format(len(part_1[0]), num_norm_test))
+    '''
+    # Verify
+    print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
