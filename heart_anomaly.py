@@ -136,11 +136,12 @@ def classifier(test_data, probs_nora_01):
     log_prob_abnrm = 0
     predictions = []
 
+    # Note - watch out for off by 1 error
     for i in range(len(test_data)):     # Loop through test data
-        for j in range(1, (len(test_data[0])-1)):   # Loop through feature data
-            print("i = {}\tj = {}\tlen test[0] = {}\ttest[i][j] = {}".format(i, j, len(test_data[0]),test_data[i][j]))
-            log_prob_abnrm += probs_nora_01[j][0][test_data[i][j]]      # Probability of abnormal=0 heart
-            log_prob_nrm += probs_nora_01[j][1][test_data[i][j]]        # Probability of normal=1 heart
+        for j in range(1, (len(test_data[0]))):   # Loop through feature data
+            #print("i = {}\tj = {}\tlen test[0] = {}\tlen probs_nora = {}\ttest[i][j] = {}".format(i, j, len(test_data[0]), len(probs_nora_01), test_data[i][j]))
+            log_prob_abnrm += probs_nora_01[j-1][0][test_data[i][j]]      # Probability of abnormal=0 heart
+            log_prob_nrm += probs_nora_01[j-1][1][test_data[i][j]]        # Probability of normal=1 heart
 
         # Check which probability is greater
         if log_prob_nrm > log_prob_abnrm:
@@ -156,11 +157,27 @@ def classifier(test_data, probs_nora_01):
     pass
 
 
+def true_pos_neg(predictions, labels, nora):
+
+    # Conditions:
+    cond_1 = (np.asarray(predictions) == nora)
+    cond_2 = (labels == nora)
+
+    part_2 = np.where(cond_1 & cond_2)
+    #print(part_2)
+    num_abnorm_test = np.count_nonzero(labels == nora)        # Count number of abnormal hearts in test data
+    #print("Abnormal/Total Abnormal: {}/{}".format(len(part_2[0]), num_abnorm_test))
+    
+    # number of abnormal correct, number of total abnormal, percentage
+    return [ len(part_2[0]), num_abnorm_test, len(part_2[0])/float(num_abnorm_test) ]
+
+
+
 # Call Main
 if __name__== "__main__" :
     probs_nora_01 = []
 
-    data, num_p = read_data()
+    data, num_p = read_data("heart-anomaly-hw/spect-orig.train.csv")
     
     # Prework for determining probabilities from training data.
     normal_hearts, abnormal_hearts, prob_normal, prob_abnormal = class_prob(data[:,0])
@@ -172,20 +189,25 @@ if __name__== "__main__" :
     
     # Verify data for classifier
     print (probs_nora_01)
+    print (len(probs_nora_01))      # 22 features
     print (probs_nora_01[21][0][0]) # how to access feature 21, abnormal=0 or normal=1 (do both), if it's 0 or 1 on feature. 
 
     # Now get my test data
-    test_data, num_p2 = read_data("heart-anomaly-hw/spect-resplit.test.csv")
+    # heart-anomaly-hw/spect-orig.test.csv
+    #test_data, num_p2 = read_data("heart-anomaly-hw/spect-resplit.test.csv")
+    test_data, num_p2 = read_data("heart-anomaly-hw/spect-orig.test.csv")
    
     # Classify data instances and get prediction
     predictions = classifier(test_data, probs_nora_01)
-    print(predictions)
-    print(test_data[:,0])
+    #print(predictions)
+    #print(test_data[:,0])
+
     # The number of correct for accuracy.
     verify_list = np.equal(test_data[:,0], predictions)
-    print(verify_list)
-    print("Correct/Total: {}/{}".format(np.sum(verify_list), len(test_data)))
-
+    #print(verify_list)
+    print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
+    
+    '''
     # conditions:
     cond_1 = (np.asarray(predictions) == 1)
     cond_2 = (test_data[:,0] == 1)
@@ -194,8 +216,10 @@ if __name__== "__main__" :
     print(part_1)
     num_norm_test = np.count_nonzero(test_data[:,0])        # Count number of normal hearts in test data
     print("Normal/Total Normal: {}/{}".format(len(part_1[0]), num_norm_test))
-
-
+    '''
+    # Verify
+    print(true_pos_neg(predictions, test_data[:,0], 1))
+    '''
     # conditions round 2:
     cond_3 = (np.asarray(predictions) == 0)
     cond_4 = (test_data[:,0] == 0)
@@ -204,3 +228,6 @@ if __name__== "__main__" :
     print(part_2)
     num_abnorm_test = np.count_nonzero(test_data[:,0] == 0)        # Count number of abnormal hearts in test data
     print("Abnormal/Total Abnormal: {}/{}".format(len(part_2[0]), num_abnorm_test))
+    '''
+    # Verify
+    print(true_pos_neg(predictions, test_data[:,0], 0))
