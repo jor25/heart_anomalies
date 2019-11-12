@@ -96,8 +96,10 @@ def conditional_prob(labels, features, total_nrm, total_abn):
         if labels[i] == 1 and features[i] == 1:
             nrm_1 += 1
 
-    abn_0 = total_abn - abn_1
-    nrm_0 = total_nrm - nrm_1
+    abn_0 = total_abn - abn_1 + .5
+    nrm_0 = total_nrm - nrm_1 + .5
+    abn_1 += .5
+    nrm_1 += .5
 
     prob_abn_0 = abn_0/float(total_abn) 
     prob_abn_1 = abn_1/float(total_abn) 
@@ -121,10 +123,12 @@ def conditional_prob(labels, features, total_nrm, total_abn):
     probs_abrms_01[1] = prob_nrm_1
 
     print(probs_nrms_01, probs_abrms_01)
-    print(np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]])))
+    logged_probs = np.log2([probs_nrms_01, probs_abrms_01])
+    print(logged_probs)
 
     # Add .5 to each element and take the log base 2 of each element then return
-    return np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]]))
+    #return np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]]))
+    return logged_probs
 
 
 
