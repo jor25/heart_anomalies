@@ -18,6 +18,7 @@
 # Resources:
 # Count 1's - https://docs.scipy.org/doc/numpy/reference/generated/numpy.count_nonzero.html#numpy.count_nonzero
 # Understanding Naive Bayes - https://www.geeksforgeeks.org/naive-bayes-classifiers/
+# Count matches in 2 arrays - https://stackoverflow.com/questions/42916330/efficiently-count-zero-elements-in-numpy-array
 
 
 import numpy as np
@@ -163,7 +164,10 @@ def classifier(test_data, probs_nora_01):
 
 
 def true_pos_neg(predictions, labels, nora):
-
+    ''' 
+        Given a list of predictions, labels, and a normal or abnormal value;
+        Return the number of correct, the total, and the precentage of them.
+    '''
     # Conditions:
     cond_1 = (np.asarray(predictions) == nora)
     cond_2 = (labels == nora)
@@ -173,7 +177,7 @@ def true_pos_neg(predictions, labels, nora):
     num_abnorm_test = np.count_nonzero(labels == nora)        # Count number of abnormal hearts in test data
     #print("Abnormal/Total Abnormal: {}/{}".format(len(part_2[0]), num_abnorm_test))
     
-    # number of abnormal correct, number of total abnormal, percentage
+    # Number of abnormal correct, number of total abnormal, percentage
     return [ len(part_2[0]), num_abnorm_test, len(part_2[0])/float(num_abnorm_test) ]
 
 
@@ -211,31 +215,12 @@ if __name__== "__main__" :
 
     # The number of correct for accuracy.
     verify_list = np.equal(test_data[:,0], predictions)
+
     #print(verify_list)
     print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
     
-    '''
-    # conditions round 2:
-    cond_3 = (np.asarray(predictions) == 0)
-    cond_4 = (test_data[:,0] == 0)
-
-    part_2 = np.where(cond_3 & cond_4)
-    print(part_2)
-    num_abnorm_test = np.count_nonzero(test_data[:,0] == 0)        # Count number of abnormal hearts in test data
-    print("Abnormal/Total Abnormal: {}/{}".format(len(part_2[0]), num_abnorm_test))
-    '''
     # Verify
     print("True Negative: ", true_pos_neg(predictions, test_data[:,0], 0))
 
-    '''
-    # conditions:
-    cond_1 = (np.asarray(predictions) == 1)
-    cond_2 = (test_data[:,0] == 1)
-
-    part_1 = np.where(cond_1 & cond_2)
-    print(part_1)
-    num_norm_test = np.count_nonzero(test_data[:,0])        # Count number of normal hearts in test data
-    print("Normal/Total Normal: {}/{}".format(len(part_1[0]), num_norm_test))
-    '''
     # Verify
     print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
