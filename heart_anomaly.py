@@ -81,32 +81,16 @@ def conditional_prob(labels, features, total_nrm, total_abn):
         number of norm(1) & 1
         Labels compared to features. 
     '''
-    print("Abnormal_1: {}".format(len(np.where((labels==0) & (features==1))[0])))
-    print("Normal_1: {}".format(len(np.where((labels==1) & (features==1))[0])))
-    abn_0 = 0
-    abn_1 = 0
-    nrm_0 = 0
-    nrm_1 = 0
-
     abn_1 = len(np.where((labels==0) & (features==1))[0])
     nrm_1 = len(np.where((labels==1) & (features==1))[0])
-    
-    print(features)
-    '''
-    for i in range(len(labels)):
-        # abnormal and 1
-        if labels[i] == 0 and features[i] == 1:
-            abn_1 += 1
-
-        # normal and 1
-        if labels[i] == 1 and features[i] == 1:
-            nrm_1 += 1
-    '''
     abn_0 = total_abn - abn_1 + .5
     nrm_0 = total_nrm - nrm_1 + .5
-    abn_1 += .5
-    nrm_1 += .5
+    abn_1 += .5                                             # Add .5 to abnormal to prevent zero denom
+    nrm_1 += .5                                             # Add .5 to normal to prevent zero denom
+    
+    print(features)
 
+    # Calculate the probabilities of each case
     prob_abn_0 = abn_0/float(total_abn) 
     prob_abn_1 = abn_1/float(total_abn) 
     prob_nrm_0 = nrm_0/float(total_nrm) 
@@ -120,36 +104,36 @@ def conditional_prob(labels, features, total_nrm, total_abn):
     """.format(abn_0, prob_abn_0, abn_1, prob_abn_1, nrm_0, prob_nrm_0, nrm_1, prob_nrm_1))
 
     # Give back two sets of probabilities, the series of normal or abnormal
-    probs_nrms_01 = np.zeros(2)
+    probs_nrms_01 = np.zeros(2)     # Normal probabilities
     probs_nrms_01[0] = prob_abn_0
     probs_nrms_01[1] = prob_abn_1
 
-    probs_abrms_01 = np.zeros(2)
+    probs_abrms_01 = np.zeros(2)    # Abnormal probabilities
     probs_abrms_01[0] = prob_nrm_0
     probs_abrms_01[1] = prob_nrm_1
 
     print(probs_nrms_01, probs_abrms_01)
+    # Get the log of each of the probabilities in both arrays
     logged_probs = np.log2([probs_nrms_01, probs_abrms_01])
     print(logged_probs)
 
-    # Add .5 to each element and take the log base 2 of each element then return
-    #return np.log2(np.add([probs_nrms_01, probs_abrms_01],[[.5, .5], [.5, .5]]))
+    # Return the log base 2 of each probability element
     return logged_probs
 
 
 
 def classifier(test_data, probs_nora_01):
     '''
-        Given the test data and the probabilities list, determine classification
-        or normal or abnormal heart.
+        Given the test data and the probabilities list of normal or abnormal, 0 or 1,
+        predict classification of normal or abnormal heart.
     '''
     log_prob_nrm = 0
     log_prob_abnrm = 0
     predictions = []
 
     # Note - watch out for off by 1 error
-    for i in range(len(test_data)):     # Loop through test data
-        for j in range(1, (len(test_data[0]))):   # Loop through feature data
+    for i in range(len(test_data)):                 # Loop through test data
+        for j in range(1, (len(test_data[0]))):     # Loop through feature data (j-1 because features 22, test data 23)
             #print("i = {}\tj = {}\tlen test[0] = {}\tlen probs_nora = {}\ttest[i][j] = {}".format(i, j, len(test_data[0]), len(probs_nora_01), test_data[i][j]))
             log_prob_abnrm += probs_nora_01[j-1][0][test_data[i][j]]      # Probability of abnormal=0 heart
             log_prob_nrm += probs_nora_01[j-1][1][test_data[i][j]]        # Probability of normal=1 heart
@@ -164,8 +148,8 @@ def classifier(test_data, probs_nora_01):
         log_prob_nrm = 0
         log_prob_abnrm = 0
 
+    # Return the list of predictions for the test data
     return predictions
-    pass
 
 
 def true_pos_neg(predictions, labels, nora):
