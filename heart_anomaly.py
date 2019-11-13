@@ -81,13 +81,18 @@ def conditional_prob(labels, features, total_nrm, total_abn):
         number of norm(1) & 1
         Labels compared to features. 
     '''
-    #print(np.where(labels==1 and features==1))
+    print("Abnormal_1: {}".format(len(np.where((labels==0) & (features==1))[0])))
+    print("Normal_1: {}".format(len(np.where((labels==1) & (features==1))[0])))
     abn_0 = 0
     abn_1 = 0
     nrm_0 = 0
     nrm_1 = 0
 
+    abn_1 = len(np.where((labels==0) & (features==1))[0])
+    nrm_1 = len(np.where((labels==1) & (features==1))[0])
+    
     print(features)
+    '''
     for i in range(len(labels)):
         # abnormal and 1
         if labels[i] == 0 and features[i] == 1:
@@ -96,7 +101,7 @@ def conditional_prob(labels, features, total_nrm, total_abn):
         # normal and 1
         if labels[i] == 1 and features[i] == 1:
             nrm_1 += 1
-
+    '''
     abn_0 = total_abn - abn_1 + .5
     nrm_0 = total_nrm - nrm_1 + .5
     abn_1 += .5
