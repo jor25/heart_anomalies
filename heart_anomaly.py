@@ -88,21 +88,21 @@ def conditional_prob(labels, features, total_nrm, total_abn):
     abn_1 += .5                                             # Add .5 to abnormal to prevent zero denom
     nrm_1 += .5                                             # Add .5 to normal to prevent zero denom
     
-    print(features)
+    #print(features)
 
     # Calculate the probabilities of each case
     prob_abn_0 = abn_0/float(total_abn) 
     prob_abn_1 = abn_1/float(total_abn) 
     prob_nrm_0 = nrm_0/float(total_nrm) 
     prob_nrm_1 = nrm_1/float(total_nrm) 
-
+    '''
     print ("""
     abn_0 = {}      prob_abn_0 = {}
     abn_1 = {}      prob_abn_1 = {}
     nrm_0 = {}      prob_nrm_0 = {}
     nrm_1 = {}      prob_nrm_1 = {}
     """.format(abn_0, prob_abn_0, abn_1, prob_abn_1, nrm_0, prob_nrm_0, nrm_1, prob_nrm_1))
-
+    '''
     # Give back two sets of probabilities, the series of normal or abnormal
     probs_nrms_01 = np.zeros(2)     # Normal probabilities
     probs_nrms_01[0] = prob_abn_0
@@ -112,10 +112,10 @@ def conditional_prob(labels, features, total_nrm, total_abn):
     probs_abrms_01[0] = prob_nrm_0
     probs_abrms_01[1] = prob_nrm_1
 
-    print(probs_nrms_01, probs_abrms_01)
+    #print(probs_nrms_01, probs_abrms_01)
     # Get the log of each of the probabilities in both arrays
     logged_probs = np.log2([probs_nrms_01, probs_abrms_01])
-    print(logged_probs)
+    #print(logged_probs)
 
     # Return the log base 2 of each probability element
     return logged_probs
@@ -173,43 +173,57 @@ def true_pos_neg(predictions, labels, nora):
 
 # Call Main
 if __name__== "__main__" :
-    probs_nora_01 = []
+    # don't use SPECTF - not binary 
+    user_cmd = sys.argv
+    print(user_cmd)
+    if user_cmd[1] == "SPECT":
+        train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train"
+        test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test"
+    else:
+        train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train.csv"
+        test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test.csv"
+        
+    print ("train: {}\ntest: {}".format(train_file, test_file))
+    
+    probs_nora_01 = []      # Probability of normal or abnormal with 0 or 1
 
     #data, num_p = read_data("heart-anomaly-hw/spect-orig.train.csv")
-    data, num_p = read_data("heart-anomaly-hw/SPECT.train")
+    #data, num_p = read_data("heart-anomaly-hw/SPECT.train")
+    data, num_p = read_data(train_file)
     
     # Prework for determining probabilities from training data.
     normal_hearts, abnormal_hearts, prob_normal, prob_abnormal = class_prob(data[:,0])
     
     # Loop through all the other features and determine a probability for each
     for i in range(1, (len(data[0]))):
-        print("{}/{}".format(i, len(data[0])-1 ))   # Show what feature I'm on with this count from 1.
+        #print("{}/{}".format(i, len(data[0])-1 ))   # Show what feature I'm on with this count from 1.
         probs_nora_01.append( conditional_prob(data[:,0], data[:,i], normal_hearts, abnormal_hearts) )
     
+    '''
     # Verify data for classifier
     print (probs_nora_01)
     print (len(probs_nora_01))      # 22 features
     print (probs_nora_01[21][0][0]) # how to access feature 21, abnormal=0 or normal=1 (do both), if it's 0 or 1 on feature. 
+    '''
 
     # Now get my test data
     # heart-anomaly-hw/spect-orig.test.csv
     #test_data, num_p2 = read_data("heart-anomaly-hw/spect-resplit.test.csv")
     #test_data, num_p2 = read_data("heart-anomaly-hw/spect-orig.test.csv")
-    test_data, num_p2 = read_data("heart-anomaly-hw/SPECT.test")
+    #test_data, num_p2 = read_data("heart-anomaly-hw/SPECT.test")
+    test_data, num_p2 = read_data(test_file)
    
     # Classify data instances and get prediction
     predictions = classifier(test_data, probs_nora_01)
-    #print(predictions)
-    #print(test_data[:,0])
 
     # The number of correct for accuracy.
     verify_list = np.equal(test_data[:,0], predictions)
 
-    #print(verify_list)
+    # Display accuracy
     print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
     
-    # Verify
+    # Verify number of abnormal hearts identified correctly
     print("True Negative: ", true_pos_neg(predictions, test_data[:,0], 0))
 
-    # Verify
+    # Verify number of normal hearts identified correctly
     print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
