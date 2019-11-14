@@ -62,12 +62,14 @@ def class_prob(labels):
     prob_normal = normal_hearts / float(total_hearts)      # Probability of normal hearts
     prob_abnormal = abnormal_hearts / float(total_hearts)  # Probability of abnormal hearts
 
+    '''
     print ("""
     total_hearts = {}
     normal_hearts = {}
     abnormal_hearts = {}
     probs normal = {}%
     probs abnormal = {}%""".format(total_hearts, normal_hearts, abnormal_hearts, prob_normal, prob_abnormal))
+    '''
 
     return normal_hearts, abnormal_hearts, prob_normal, prob_abnormal
 
@@ -175,7 +177,7 @@ def true_pos_neg(predictions, labels, nora):
 if __name__== "__main__" :
     # don't use SPECTF - not binary 
     user_cmd = sys.argv
-    print(user_cmd)
+    #print(user_cmd)
     if user_cmd[1] == "SPECT":
         train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train"
         test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test"
@@ -183,7 +185,7 @@ if __name__== "__main__" :
         train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train.csv"
         test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test.csv"
         
-    print ("train: {}\ntest: {}".format(train_file, test_file))
+    #print ("train: {}\ntest: {}".format(train_file, test_file))
     
     probs_nora_01 = []      # Probability of normal or abnormal with 0 or 1
 
@@ -219,11 +221,21 @@ if __name__== "__main__" :
     # The number of correct for accuracy.
     verify_list = np.equal(test_data[:,0], predictions)
 
+    #print(user_cmd[1])
+
     # Display accuracy
-    print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
+    #print("Correct/Total: {}/{} ({})".format(np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))))
+    accuracy = [np.sum(verify_list), len(test_data), np.sum(verify_list)/ float(len(test_data))]
     
     # Verify number of abnormal hearts identified correctly
-    print("True Negative: ", true_pos_neg(predictions, test_data[:,0], 0))
+    #print("True Negative: ", true_pos_neg(predictions, test_data[:,0], 0))
+    true_neg = true_pos_neg(predictions, test_data[:,0], 0)
 
     # Verify number of normal hearts identified correctly
-    print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
+    #print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
+    true_pos = true_pos_neg(predictions, test_data[:,0], 1)
+
+    print("{} {}/{}({}) {}/{}({}) {}/{}({}) ".format(user_cmd[1], accuracy[0], accuracy[1], round(accuracy[2], 2),
+                                                    true_neg[0], true_neg[1], round(true_neg[2], 2),
+                                                    true_pos[0], true_pos[1], round(true_pos[2], 2)))
+
