@@ -172,21 +172,42 @@ def true_pos_neg(predictions, labels, nora):
     return [ len(part_2[0]), num_abnorm_test, len(part_2[0])/float(num_abnorm_test) ]
 
 
-
-# Call Main
-if __name__== "__main__" :
-    # don't use SPECTF - not binary 
-    user_cmd = sys.argv
-    #print(user_cmd)
+def parser(user_cmd):
+    '''
+        Given the user commands, parse them to determine the proper filenames.
+        Then return the training file, testing file, and the user commands.
+    '''
     if user_cmd[1] == "SPECT":
         train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train"
         test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test"
     else:
         train_file = "heart-anomaly-hw/" + user_cmd[1] + ".train.csv"
         test_file = "heart-anomaly-hw/" + user_cmd[1] + ".test.csv"
+    return train_file, test_file, user_cmd
+
+
+def disp_write_out(user_cmd, accuracy, true_neg, true_pos):
+    '''
+    '''
+    output = "{} {}/{}({}) {}/{}({}) {}/{}({})".format(user_cmd[1], accuracy[0], accuracy[1], round(accuracy[2], 2),
+                                                    true_neg[0], true_neg[1], round(true_neg[2], 2),
+                                                    true_pos[0], true_pos[1], round(true_pos[2], 2))
+    out_file = "final_scores/out_{}".format(user_cmd[1]) 
+    fout = open(out_file, "w")  # Output file
+    fout.write(output)          # Write txt_line to the file
+    fout.close()                # Close the file
+
+    print(output)
+
+# Call Main
+if __name__== "__main__" :
+    # don't use SPECTF - not binary 
+    train_file, test_file, user_cmd = parser(sys.argv)
+    #print(user_cmd)
         
     #print ("train: {}\ntest: {}".format(train_file, test_file))
-    
+
+
     probs_nora_01 = []      # Probability of normal or abnormal with 0 or 1
 
     #data, num_p = read_data("heart-anomaly-hw/spect-orig.train.csv")
@@ -235,7 +256,5 @@ if __name__== "__main__" :
     #print("True Positive: ", true_pos_neg(predictions, test_data[:,0], 1))
     true_pos = true_pos_neg(predictions, test_data[:,0], 1)
 
-    print("{} {}/{}({}) {}/{}({}) {}/{}({}) ".format(user_cmd[1], accuracy[0], accuracy[1], round(accuracy[2], 2),
-                                                    true_neg[0], true_neg[1], round(true_neg[2], 2),
-                                                    true_pos[0], true_pos[1], round(true_pos[2], 2)))
-
+    # Display to standard out and write to output file
+    disp_write_out(user_cmd, accuracy, true_neg, true_pos)
