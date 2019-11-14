@@ -45,9 +45,9 @@ def class_prob(labels):
     ''' Given labels, get the probability of the heart being normal or abnormal.
         Return number of normal hearts, abnormal hearts, and probabilities of both.
     '''
-    total_hearts = len(labels)                              # Total hearts
-    normal_hearts = np.count_nonzero(labels)                # Count number of normal hearts
-    abnormal_hearts = total_hearts - normal_hearts          # Abnormal hearts
+    total_hearts = len(labels) + .5                             # Total hearts
+    normal_hearts = np.count_nonzero(labels) + .5               # Count number of normal hearts
+    abnormal_hearts = total_hearts - normal_hearts + .5         # Abnormal hearts
 
     prob_normal = normal_hearts / float(total_hearts)       # Probability of normal hearts
     prob_abnormal = abnormal_hearts / float(total_hearts)   # Probability of abnormal hearts
