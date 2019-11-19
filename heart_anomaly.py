@@ -1,28 +1,37 @@
 # Name: Jordan Le
 # Date: 11-7-19
 # Description: Project working with Naive Bayes on Binary Heart data.
-#   - 0 is abnormal heart
-#   - 1 is normal heart
-
+#              Train on binary training data, determine class probabilities,
+#              Then conditional probabilities of each feature. Log base 2
+#              the results to simplify computation.
+#              
+#              Then, create classifier for abnormal or normal hearts.
+#              Next, input the test data, get the prediction and compare
+#              that with the test data labels.
+#           
+#              Finally, output the results of all datasets with the following format:
+#                   "File_Id Acc% (Correct/Total) True Neg% (Correct Abnrm/Total Abnrm) True Pos% (Correct Norm/Total Norm)"
+#   Also Note:
+#       - 0 is abnormal heart
+#       - 1 is normal heart
 
 # For Grading Run the following:
-#   "make run_all"
+#   "make run_all" - This runs all of the keyword files below and creates an output file for each.
 
-
-# Run with "python3 heart_anomalies.py <keyword>"
+# Alternate Run with "python3 heart_anomalies.py <keyword>"
 # keywords:
-#   - SPECT                 - spect-itg
-#   - spect-resplit-itg     - spect-orig
-#   - spect-resplit 
+#   - "SPECT"                 - "spect-itg"
+#   - "spect-resplit-itg"     - "spect-orig"
+#   - "spect-resplit" 
 
+# Set Up:
 # Installs "pip3 install <package>"
-
 
 # Resources:
 # Count 1's - https://docs.scipy.org/doc/numpy/reference/generated/numpy.count_nonzero.html#numpy.count_nonzero
 # Understanding Naive Bayes - https://www.geeksforgeeks.org/naive-bayes-classifiers/
 # Count matches in 2 arrays - https://stackoverflow.com/questions/42916330/efficiently-count-zero-elements-in-numpy-array
-
+# Basic logarithm rules - https://www.chilimath.com/lessons/advanced-algebra/logarithm-rules/
 
 import numpy as np
 import sys
@@ -99,8 +108,7 @@ def conditional_prob(labels, features, total_nrm, total_abn):
 
 
 def classifier(test_data, probs_nora_01):
-    '''
-        Given the test data and the probabilities list of normal or abnormal, 0 or 1,
+    ''' Given the test data and the probabilities list of normal or abnormal, 0 or 1,
         predict classification of normal or abnormal heart. Return a list of predictions.
     '''
     predictions = []    # Initialize Predictions
